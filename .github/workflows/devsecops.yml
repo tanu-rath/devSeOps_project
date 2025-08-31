@@ -33,7 +33,7 @@ jobs:
 
       # Step 5: SonarCloud Scan (for Node)
       - name: SonarCloud Scan
-        uses: uses: SonarSource/sonarqube-scan-action@abcdef1234567890abcdef1234567890abcdef12
+        uses: uses: SonarSource/sonarqube-scan-action@c2eb3010fe6f4b7cbc64eb9ee3e87970
 
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
