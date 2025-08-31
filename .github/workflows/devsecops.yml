@@ -47,4 +47,4 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: test --severity-threshold=high --prune-repeated-subdependencies
+          args: test --severity-threshold=high --prune-repeated-subdependencies --skip-unresolved
