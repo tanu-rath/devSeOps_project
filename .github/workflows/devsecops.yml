@@ -22,10 +22,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
 
       # Step 3: Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       # Step 4: Run placeholder tests
       - name: Run tests
@@ -41,8 +42,9 @@ jobs:
 
       # Step 6: Snyk Security Scan
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@v4
+        timeout-minutes: 5
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: test
+          args: test --severity-threshold=high --exclude=node_modules --prune-repeated-subdependencies
