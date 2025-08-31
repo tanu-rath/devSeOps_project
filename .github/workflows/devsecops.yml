@@ -2,19 +2,17 @@ name: DevSecOps Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
-      - name: Checkout Repository
+      # Step 1: Checkout the code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       # Step 2: Setup Node.js
@@ -28,24 +26,21 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Run placeholder tests
+      # Step 4: Run tests (placeholder)
       - name: Run tests
         run: echo "No tests yet"
 
       # Step 5: SonarCloud Scan (for Node)
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v2
-
+        uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
 
       # Step 6: Snyk Security Scan
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@0.4.0
-
-        timeout-minutes: 5
+        uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: test --severity-threshold=high --prune-repeated-subdependencies --skip-unresolved
+
+        
