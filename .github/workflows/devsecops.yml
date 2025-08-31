@@ -33,7 +33,7 @@ jobs:
 
       # Step 5: SonarCloud Scan (for Node)
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v2
+        uses: SonarSource/sonarqube-scan-action@<FULL_COMMIT_SHA>
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
