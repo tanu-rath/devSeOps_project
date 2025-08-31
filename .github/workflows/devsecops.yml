@@ -15,11 +15,11 @@ jobs:
     steps:
       # Step 1: Checkout code
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
       # Step 2: Setup Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
           node-version: '18'
           cache: 'npm'
@@ -34,18 +34,16 @@ jobs:
 
       # Step 5: SonarCloud Scan (for Node)
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v2
-
+        uses: SonarSource/sonarqube-scan-action@a574f917c14f4aa19f7792a71447c4742e9c4f6e
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
 
       # Step 6: Snyk Security Scan
       - name: Run Snyk to check for vulnerabilities
-       uses: snyk/actions/node@6500772e61cf48550e874ffdcff013f3d4659768
-
+        uses: snyk/actions/node@6500772e61cf48550e874ffdcff013f3d4659768
         timeout-minutes: 5
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: test --severity-threshold=high --prune-repeated-subdependencies --skip-unresolved
+          args: test --severity-threshold=high --prune-repeated-subdependencies
