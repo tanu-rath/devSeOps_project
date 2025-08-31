@@ -42,7 +42,7 @@ jobs:
 
       # Step 6: Snyk Security Scan
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@v4
+        uses: snyk/actions/node@0.4.0
         timeout-minutes: 5
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
