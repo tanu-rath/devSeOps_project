@@ -65,9 +65,13 @@ jobs:
           SONAR=$(curl -s -u ${SONAR_TOKEN}: \
             "https://sonarcloud.io/api/measures/component?component=tanu-rath_devSeOps_project&metricKeys=bugs,vulnerabilities,code_smells")
 
-          BUGS=$(echo $SONAR | jq '.component.measures[] | select(.metric=="bugs") | .value // 0')
-          VULNS=$(echo $SONAR | jq '.component.measures[] | select(.metric=="vulnerabilities") | .value // 0')
-          SMELLS=$(echo $SONAR | jq '.component.measures[] | select(.metric=="code_smells") | .value // 0')
+          BUGS=$(echo $SONAR | jq -r '.component.measures[]? | select(.metric=="bugs") | .value' | head -n1)
+          VULNS=$(echo $SONAR | jq -r '.component.measures[]? | select(.metric=="vulnerabilities") | .value' | head -n1)
+          SMELLS=$(echo $SONAR | jq -r '.component.measures[]? | select(.metric=="code_smells") | .value' | head -n1)
+
+          BUGS=${BUGS:-0}
+          VULNS=${VULNS:-0}
+          SMELLS=${SMELLS:-0}
 
           TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
 
