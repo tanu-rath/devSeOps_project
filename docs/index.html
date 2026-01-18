@@ -1,100 +1,71 @@
-name: DevSecOps Dashboard Pipeline
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DevSecOps Live Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h1>DevSecOps Live Dashboard</h1>
+<p id="updated"></p>
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
+<canvas id="buildChart"></canvas>
+<canvas id="snykChart"></canvas>
+<canvas id="sonarChart"></canvas>
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+<script>
+fetch('data.json')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById("updated").innerText =
+      "Last Updated: " + d.updated_at;
 
-    steps:
-      # 1. Checkout
-      - name: Checkout code
-        uses: actions/checkout@v4
+    new Chart(buildChart, {
+      type: 'doughnut',
+      data: {
+        labels: ['Success','Failed'],
+        datasets: [{
+          data: [d.build.success, d.build.failed],
+          backgroundColor: ['green','red']
+        }]
+      }
+    });
 
-      # 2. Setup Node
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+    new Chart(snykChart, {
+      type: 'bar',
+      data: {
+        labels: ['Critical','High','Medium','Low'],
+        datasets: [{
+          data: [
+            d.snyk.critical,
+            d.snyk.high,
+            d.snyk.medium,
+            d.snyk.low
+          ],
+          backgroundColor: ['red','orange','yellow','blue']
+        }]
+      }
+    });
 
-      # 3. Install dependencies
-      - name: Install dependencies
-        run: npm install
+    new Chart(sonarChart, {
+      type: 'radar',
+      data: {
+        labels: ['Bugs','Vulnerabilities','Code Smells'],
+        datasets: [{
+          data: [
+            d.sonar.bugs,
+            d.sonar.vulnerabilities,
+            d.sonar.codeSmells
+          ]
+        }]
+      }
+    });
+  });
+</script>
+</body>
+</html>
 
-      # 4. Run tests (placeholder)
-      - name: Run tests
-        run: npm test
-        continue-on-error: true
 
-      # 5. SonarCloud Scan
-      - name: SonarCloud Scan
-        continue-on-error: true
-        uses: SonarSource/sonarcloud-github-action@v2
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
+     
 
-      # 6. Snyk Scan (JSON output)
-      - name: Run Snyk Scan
-        continue-on-error: true
-        run: |
-          npx snyk test --json > snyk-report.json
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      # 7. Generate dashboard JSON
-      - name: Generate dashboard data
-        if: always()
-        run: |
-          mkdir -p docs
-
-          # Build status
-          BUILD_SUCCESS=1
-          BUILD_FAILED=0
-
-          # Snyk counts
-          CRITICAL=$(jq '.vulnerabilities | map(select(.severity=="critical")) | length' snyk-report.json 2>/dev/null || echo 0)
-          HIGH=$(jq '.vulnerabilities | map(select(.severity=="high")) | length' snyk-report.json 2>/dev/null || echo 0)
-          MEDIUM=$(jq '.vulnerabilities | map(select(.severity=="medium")) | length' snyk-report.json 2>/dev/null || echo 0)
-          LOW=$(jq '.vulnerabilities | map(select(.severity=="low")) | length' snyk-report.json 2>/dev/null || echo 0)
-
-          # SonarCloud metrics
-          SONAR=$(curl -s -u ${SONAR_TOKEN}: \
-            "https://sonarcloud.io/api/measures/component?component=tanu-rath_devSeOps_project&metricKeys=bugs,vulnerabilities,code_smells")
-
-          BUGS=$(echo $SONAR | jq '.component.measures[] | select(.metric=="bugs") | .value // 0')
-          VULNS=$(echo $SONAR | jq '.component.measures[] | select(.metric=="vulnerabilities") | .value // 0')
-          SMELLS=$(echo $SONAR | jq '.component.measures[] | select(.metric=="code_smells") | .value // 0')
-
-          TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
-
-          cat <<EOF > docs/data.json
-          {
-            "build": { "success": $BUILD_SUCCESS, "failed": $BUILD_FAILED },
-            "snyk": {
-              "critical": $CRITICAL,
-              "high": $HIGH,
-              "medium": $MEDIUM,
-              "low": $LOW
-            },
-            "sonar": {
-              "bugs": $BUGS,
-              "vulnerabilities": $VULNS,
-              "codeSmells": $SMELLS
-            },
-            "updated_at": "$TIMESTAMP"
-          }
-          EOF
-
-      # 8. Commit JSON
-      - name: Commit dashboard data
-        if: always()
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add docs/data.json
-          git commit -m "Update dashboard metrics" || echo "No changes"
-          git push
+        
+             
