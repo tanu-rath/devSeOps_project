@@ -1,0 +1,15 @@
+{
+  "build": { "success": 1, "failed": 0 },
+  "snyk": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "sonar": {
+    "bugs": ,
+    "vulnerabilities": ,
+    "codeSmells": 
+  },
+  "updated_at": "2026-01-18 18:19:21"
+}
